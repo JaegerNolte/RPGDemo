@@ -3,6 +3,13 @@ using System.Collections.Generic;
 using UnityEditor.UIElements;
 using UnityEngine;
 
+/*
+ 
+    This is for educational purposes to learn core unity concepts and object-oriented programming in C#
+    This project demo will provide the basics for RPG development and provide opportunity to experiment with character
+    and role-playing environments
+    
+*/
 public class PlayerMovement : MonoBehaviour
 {
 
@@ -14,7 +21,7 @@ public class PlayerMovement : MonoBehaviour
 
     private Animator animator;
     
-    public LayerMask solidObjectsLayer;
+    public LayerMask solidObjectsLayer; // scene layer referencing the tile layer level for level editing
 
     private void Awake()
     {
@@ -77,7 +84,7 @@ public class PlayerMovement : MonoBehaviour
         
     }
 
-    private bool isWalkable(Vector3 targetPos)
+    private bool isWalkable(Vector3 targetPos) // applies the player collision barrier
     {
 
         if (Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer) != null)
