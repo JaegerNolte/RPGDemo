@@ -13,6 +13,8 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 input;
 
     private Animator animator;
+    
+    public LayerMask solidObjectsLayer;
 
     private void Awake()
     {
@@ -45,7 +47,8 @@ public class PlayerMovement : MonoBehaviour
                 targetPos.x += input.x; // adds input to the x value coordinate
                 targetPos.y += input.y; // adds input to the y value coordinate
                 
-                StartCoroutine(Move(targetPos)); // will be running constantly in the game
+                if (isWalkable(targetPos))
+                    StartCoroutine(Move(targetPos)); // will be running constantly in the game
                 
             }
 
@@ -71,6 +74,20 @@ public class PlayerMovement : MonoBehaviour
         transform.position = targetPos;
         
         isMoving = false;
+        
+    }
+
+    private bool isWalkable(Vector3 targetPos)
+    {
+
+        if (Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer) != null)
+        {
+            
+            return false;
+            
+        }
+        
+        return true;
         
     }
 
