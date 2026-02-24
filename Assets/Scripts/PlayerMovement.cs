@@ -23,6 +23,9 @@ public class PlayerMovement : MonoBehaviour
     
     public LayerMask solidObjectsLayer; // scene layer referencing the tile layer level for level editing
 
+    public LayerMask interactableLayer;
+    
+    public LayerMask battleLayer;
     private void Awake()
     {
         
@@ -30,7 +33,7 @@ public class PlayerMovement : MonoBehaviour
         
     }
 
-    private void Update()
+    public void HandleUpdate()
     {
         
         if (!isMoving)
@@ -39,16 +42,16 @@ public class PlayerMovement : MonoBehaviour
             input.x = Input.GetAxisRaw("Horizontal"); // if input different from zero then run something!
             input.y = Input.GetAxisRaw("Vertical");
             
-            Debug.Log("This is input.x " + input.x);
-            Debug.Log("This is input.y " + input.y);
+            // Debug.Log("This is input.x " + input.x);
+            // Debug.Log("This is input.y " + input.y);
             
             if (input.x != 0) input.y = 0; // Prevents diagonal movement
             
             if (input != Vector2.zero)
             {
                 
-                animator.SetFloat("MoveX", input.x);
-                animator.SetFloat("MoveY", input.y);
+                animator.SetFloat("moveX", input.x);
+                animator.SetFloat("moveY", input.y);
                 
                 var targetPos = transform.position; // Changes the objects transform value
                 targetPos.x += input.x; // adds input to the x value coordinate
@@ -62,6 +65,34 @@ public class PlayerMovement : MonoBehaviour
         }
 
         animator.SetBool("isMoving", isMoving); // Applies Walking animations configured in the Animator tool in Unity
+        
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            
+            Interact();
+            
+        }
+        
+    }
+
+    void Interact()
+    {
+        
+        var facingDir = new Vector3(animator.GetFloat("moveX"), animator.GetFloat("moveY"));
+        var interactPos = transform.position +  facingDir;
+        
+        
+        // this visualizes the intersect point of the facing direction to interact with objects        
+        // Debug.DrawLine(transform.position, interactPos, Color.red, 1f);
+        
+        var collider = Physics2D.OverlapCircle(interactPos, 0.2f, interactableLayer);
+        if (collider != null)
+        {
+            
+            // If it is a collider -> get the component -> if its interactable -> execute Interact
+            collider.GetComponent<Interactable>()?.Interact();
+
+        }
         
     }
 
@@ -81,13 +112,15 @@ public class PlayerMovement : MonoBehaviour
         transform.position = targetPos;
         
         isMoving = false;
-        
+
+        CheckForEncounters();
+
     }
 
     private bool isWalkable(Vector3 targetPos) // applies the player collision barrier
     {
 
-        if (Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer) != null)
+        if (Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer | interactableLayer) != null)
         {
             
             return false;
@@ -96,6 +129,23 @@ public class PlayerMovement : MonoBehaviour
         
         return true;
         
+    }
+
+    private void CheckForEncounters()
+    {
+
+        if (Physics2D.OverlapCircle(transform.position, 0.1f, battleLayer) != null)
+        {
+
+            if (Random.Range(1, 100) <= 50)
+            {
+                
+                Debug.Log("A battle has started");
+                
+            }
+
+        }
+
     }
 
 }
